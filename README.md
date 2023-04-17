@@ -1,4 +1,5 @@
 # DolaDB
+## This project is still at early development 💻
 DolaDB is local python based alternative for MongoDB
 
 ## Description
