@@ -1,17 +1,13 @@
-import sqlite3
-from sqlite3 import Error
-
 import doladb
 
 myclient = doladb.DolaClient("v")
 
-mydb = myclient["test"]
+mydb = myclient["testdb"]
+print(mydb)
+print(mydb.list_collection_names())
+#mycol = mydb["customers"]
 
-#print(mydb)
-#print(myclient.list_database_names())
+#mydict = { "name": "John", "address": "Highway 37" }
 
-mycoll = mydb["table1"]
-
-print("collection: " + str(mycoll))
-
-#mydb.list_collection_names()
+#x = mycol.insert_one(mydict)
+#print(x.inserted_id) 

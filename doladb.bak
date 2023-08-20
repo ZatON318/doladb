@@ -14,7 +14,7 @@ class DolaClient:
             if("v" in self.args):
                 print("No Dola config file found creating default one...")
             self.dola_conf={
-                "dola":{
+                "0":{
                     "name":"dola",
                     "file_name":"dola.json",
                 },
@@ -24,25 +24,28 @@ class DolaClient:
             
 
     def __getitem__(self, item):
+        self.new_db_id = 0
         try:
-            db = self.dola_conf[item]
-            print("db found")
-        except:
-            print("no db found")
-            self.file_name = "" + item + ".json"
-            self.dola_conf.update({str(item):{
-                "name":item,
-                "file_name":self.file_name
-            }})
-            with open("ddb_config.json", "w") as conf:
-                json.dump(self.dola_conf, conf, indent=1)
+            print(self.dola_conf)
+            if item == self.dola_conf[str(db)]["name"]:
+                if("v" in self.args):
+                    print("DB found...")
+                return database(self.dola_conf[str(db)]["name"], self.dola_conf[str(db)]["file_name"])
+            self.new_db_id += 1
+        
+         
+        if("v" in self.args):
+            print("DB not found, creating")
+        
+        self.file_name = "" + item + ".json"
+        self.dola_conf.update({str(self.new_db_id):{
+            "name":item,
+            "file_name":self.file_name
+        }})
+        with open("ddb_config.json", "w") as conf:
+            json.dump(self.dola_conf, conf)
 
-            #self.db = {}
-            #with open(item + ".json", "w") as db:
-            #    json.dump(self.db, db, indent=1)
-
-            
-        return database(self.dola_conf[item]["name"], self.dola_conf[item]["file_name"])
+        return database(self.dola_conf[str(self.new_db_id)]["name"], self.dola_conf[str(self.new_db_id)]["file_name"])
     
     def list_database_names(self):
         self.dbs = []
@@ -55,7 +58,6 @@ class database():
     def __init__(self, *argv):
         self.name = argv[0]
         self.file_name = argv[1]
-        self.args = argv
         try:
             with open(self.file_name, 'r') as openfile:
                 self.db = json.load(openfile)
@@ -65,10 +67,9 @@ class database():
             if("v" in self.args):
                 print("DB not foun, creating...")
             self.db={
-                self.name:{
+                "db":{
                     "name":self.name,
                     "file_name":self.file_name,
-                    "collections":{},
                 },
             }
             with open(self.file_name, "w") as conf:
@@ -96,7 +97,15 @@ class database():
 
 
     def list_collection_names(self):
-        return self.db[self.name]["collections"]
+        c = self.conn.cursor()
+        query = "SELECT name FROM sqlite_master WHERE type='table';"
+        c.execute(query)
+
+        colls = c.fetchall()
+        self.collections = []
+        for co in colls:
+            self.collections.append(co[0])
+        return self.collections
 
 class collection():
     def __init__(self, *argv):
